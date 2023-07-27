@@ -1,20 +1,10 @@
 import cv2
 import mediapipe as mp
-import serial.tools.list_ports
+import serial
 import time
 
-# Seri portu bulma
-ser_port = None
-ports = serial.tools.list_ports.comports()
-for port, desc, hwid in sorted(ports):
-    if 'COM5' in port:
-        ser_port = port
-        break
-
-if ser_port is None:
-    print("COM5 seri portu bulunamadı.")
-    exit()
-
+#
+ser_port = 'COM5'
 baud_rate = 9600
 
 # Seri haberleşmeyi başlat
@@ -65,23 +55,29 @@ while True:
 
             # Hareket yönünü belirle ve Arduino'ya gönder
             if abs(x_distance) > abs(y_distance):
-                if x_distance > 20:
+                if x_distance > 50:
                     movement = "Sag"
                     send_command(1, angle_limit(90 + abs(x_distance), 0, 180))
-                elif x_distance < -20:
+                    #print(x_distance)
+                elif x_distance < -50:
                     movement = "Sol"
-                    send_command(2, angle_limit(90 + abs(x_distance), 0, 180))
+                    send_command(1, angle_limit(90 - abs(x_distance), 0, 180))
+                    #print(x_distance)
                 else:
                     movement = "Duz"
+                    send_command(1, 90)
+                    print(x_distance)
             else:
-                if y_distance > 20:
+                if y_distance > 70:
                     movement = "Asagi"
-                    send_command(4, angle_limit(90 + abs(y_distance), 0, 180))
-                elif y_distance < -20:
+                    send_command(2, angle_limit(90 + abs(y_distance), 0, 180))
+                    print(y_distance)
+                elif y_distance < -10:
                     movement = "Yukari"
-                    send_command(5, angle_limit(90 + abs(y_distance), 0, 180))
+                    send_command(2, angle_limit(90 - abs(y_distance), 0, 180))
                 else:
                     movement = "Duz"
+                    send_command(2, 90)
 
             cv2.putText(frame, f"Hareket: {movement}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
