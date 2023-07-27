@@ -57,6 +57,8 @@ class HandGestureController:
                         cv2.putText(img, hand_side + " el", (min_x - 70, min_y - 40), font, 1, (255, 255, 255), 2)
                         self.mpDraw.draw_landmarks(img, handLms, self.mpHand.HAND_CONNECTIONS)
 
+
+                        #elin noktalarının koordinatları hesaplanır
                         x, y = handLms.landmark[3].x, handLms.landmark[3].y
                         x1, y1 = handLms.landmark[4].x, handLms.landmark[4].y
 
@@ -89,6 +91,7 @@ class HandGestureController:
                         yuzuk_parmak_angle = int((yuzuk_parmak / 163) * 170)
                         serce_parmak_angle = int((serce_parmak / 133) * 170)
 
+                        #aci limitleri belirlendi
                         sag_bas_parmak_angle = angle_limit(sag_bas_parmak_angle, 0, 180)
                         sol_bas_parmak_angle = angle_limit(sol_bas_parmak_angle, 0, 180)
                         isaret_parmak_angle = angle_limit(isaret_parmak_angle, 0, 180)
@@ -99,26 +102,38 @@ class HandGestureController:
                         print("mesafe: " + str(isaret_parmak))
                         print("aci: " + str(isaret_parmak_angle))
 
-                        servo_num1 = 0
-                        servo_num2 = 1
-                        servo_num3 = 2
-                        servo_num4 = 3
-                        servo_num5 = 4
+                        #servolar isimlerindirildi
+                        servo_sag_bp = 0
+                        servo_sag_ip = 1
+                        servo_sag_op = 2
+                        servo_sag_yp = 3
+                        servo_sag_sp = 4
 
+                        servo_sol_bp = 0
+                        servo_sol_ip = 1
+                        servo_sol_op = 2
+                        servo_sol_yp = 3
+                        servo_sol_sp = 4
+
+                        #sag sol el ayrımı yapılır
                         if hand_side == "Sag":
-                            send_command(servo_num1, sag_bas_parmak_angle)
+                            send_command(servo_sag_bp, sag_bas_parmak_angle)
                             print("sag elllllllllllllllllllll")
+                            send_command(servo_sag_ip, isaret_parmak_angle)
+                            send_command(servo_sag_op, orta_parmak_angle)
+                            send_command(servo_sag_yp, yuzuk_parmak_angle)
+                            send_command(servo_sag_sp, serce_parmak_angle)
+
                         elif hand_side == "Sol":
-                            send_command(servo_num1, sol_bas_parmak_angle)
+                            send_command(servo_sol_bp, sol_bas_parmak_angle)
                             print(hand_side)
+                            send_command(servo_sol_ip, isaret_parmak_angle)
+                            send_command(servo_sol_op, orta_parmak_angle)
+                            send_command(servo_sol_yp, yuzuk_parmak_angle)
+                            send_command(servo_sol_sp, serce_parmak_angle)
                         else:
                             # Diğer durumlar için yapmak istediğiniz işlemi burada yapabilirsiniz.
                             pass
-                        send_command(servo_num2, isaret_parmak_angle)
-                        send_command(servo_num3, orta_parmak_angle)
-                        send_command(servo_num4, yuzuk_parmak_angle)
-                        send_command(servo_num5, serce_parmak_angle)
-
 
 
             else:
@@ -128,6 +143,6 @@ class HandGestureController:
             cv2.waitKey(1)
 
 
-# Sınıf örneğini oluşturup işlemi başlatabilirsiniz
+# Sınıf örneğini oluşturup işlemi baslatırız
 controller = HandGestureController()
 controller.process_gestures()
