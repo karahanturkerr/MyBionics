@@ -84,20 +84,14 @@ class HandGestureController:
                         yuzuk_parmak = int((y6 - y7) * img.shape[0])
                         serce_parmak = int((y8 - y9) * img.shape[0])
 
-                        sag_bas_parmak_angle = int((sag_bas_parmak / 70) * 170)
-                        sol_bas_parmak_angle = int((sol_bas_parmak / 70) * 170)
-                        isaret_parmak_angle = int((isaret_parmak / 150) * 170)
-                        orta_parmak_angle = int((orta_parmak / 175) * 170)
-                        yuzuk_parmak_angle = int((yuzuk_parmak / 163) * 170)
-                        serce_parmak_angle = int((serce_parmak / 133) * 170)
 
-                        #aci limitleri belirlendi
-                        sag_bas_parmak_angle = angle_limit(sag_bas_parmak_angle, 0, 180)
-                        sol_bas_parmak_angle = angle_limit(sol_bas_parmak_angle, 0, 180)
-                        isaret_parmak_angle = angle_limit(isaret_parmak_angle, 0, 180)
-                        orta_parmak_angle = angle_limit(orta_parmak_angle, 0, 180)
-                        yuzuk_parmak_angle = angle_limit(yuzuk_parmak_angle, 0, 180)
-                        serce_parmak_angle = angle_limit(serce_parmak_angle, 0, 180)
+                        #aci ve limitleri belirlendi
+                        sag_bas_parmak_angle = angle_limit(int((sag_bas_parmak / 70) * 170), 0, 180)
+                        sol_bas_parmak_angle = angle_limit(int((sol_bas_parmak / 70) * 170), 0, 180)
+                        isaret_parmak_angle = angle_limit(int((isaret_parmak / 150) * 170), 0, 180)
+                        orta_parmak_angle = angle_limit(int((orta_parmak / 175) * 170), 0, 180)
+                        yuzuk_parmak_angle = angle_limit(int((yuzuk_parmak / 163) * 170), 0, 180)
+                        serce_parmak_angle = angle_limit(int((serce_parmak / 133) * 170), 0, 180)
 
                         print("mesafe: " + str(isaret_parmak))
                         print("aci: " + str(isaret_parmak_angle))
