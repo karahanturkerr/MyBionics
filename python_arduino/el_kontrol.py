@@ -26,7 +26,7 @@ class HandGestureController:
         self.cap.set(3, 1280)
         self.cap.set(4, 720)
         self.mpHand = mp.solutions.hands
-        self.hands = self.mpHand.Hands(max_num_hands=1)
+        self.hands = self.mpHand.Hands(max_num_hands=2)
         self.mpDraw = mp.solutions.drawing_utils
         self.previous_hand = None
         time.sleep(2)
