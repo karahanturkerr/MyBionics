@@ -53,31 +53,34 @@ while True:
             x_distance = center_x - screen_width // 2
             y_distance = center_y - screen_height // 2
 
+            servo_kafa_ss = 1
+            servo_kafa_ay = 2
+
             # Hareket yönünü belirle ve Arduino'ya gönder
             if abs(x_distance) > abs(y_distance):
                 if x_distance > 50:
                     movement = "Sag"
-                    send_command(1, angle_limit(90 + abs(x_distance), 0, 180))
+                    send_command(servo_kafa_ss, angle_limit(90 + abs(x_distance), 0, 180))
                     #print(x_distance)
                 elif x_distance < -50:
                     movement = "Sol"
-                    send_command(1, angle_limit(90 - abs(x_distance), 0, 180))
+                    send_command(servo_kafa_ss, angle_limit(90 - abs(x_distance), 0, 180))
                     #print(x_distance)
                 else:
                     movement = "Duz"
-                    send_command(1, 90)
+                    send_command(servo_kafa_ss, 90)
                     print(x_distance)
             else:
                 if y_distance > 70:
                     movement = "Asagi"
-                    send_command(2, angle_limit(90 + abs(y_distance), 0, 180))
+                    send_command(servo_kafa_ay, angle_limit(90 + abs(y_distance), 0, 180))
                     print(y_distance)
                 elif y_distance < -10:
                     movement = "Yukari"
-                    send_command(2, angle_limit(90 - abs(y_distance), 0, 180))
+                    send_command(servo_kafa_ay, angle_limit(90 - abs(y_distance), 0, 180))
                 else:
                     movement = "Duz"
-                    send_command(2, 90)
+                    send_command(servo_kafa_ay, 90)
 
             cv2.putText(frame, f"Hareket: {movement}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
