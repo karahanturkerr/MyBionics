@@ -4,7 +4,7 @@ import mediapipe as mp
 import threading
 
 
-def angle_limit(value, min_value, max_value):  # açıyı 0 ile 180 derece arasında sınırlandırır
+def angle_limit(value, min_value, max_value):  # aciyi 0 ile 180 derece arasında sınırlandırır
     return min(max(value, min_value), max_value)
 
 

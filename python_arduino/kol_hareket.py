@@ -16,7 +16,7 @@ class ArmGestureController:
 
         self.thread_lock = threading.Lock()
 
-    def angle_limit(self, value, min_value, max_value):  # açıyı 0 ile 180 derece arasında sınırlandırır
+    def angle_limit(self, value, min_value, max_value):  # aciyi 0 ile 180 derece arasında sınırlandırır
         return min(max(value, min_value), max_value)
 
     def send_command(self, servo_num, anglee):
