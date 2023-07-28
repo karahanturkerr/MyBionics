@@ -65,11 +65,16 @@ class ArmGestureController:
                 sol_dirsek = self.angle_limit(sol_dirsek, 0, 180)
                 sol_omuz = self.angle_limit(sol_omuz, 0, 180)
 
+                servo_sag_dirsek = 0
+                servo_sag_omuz = 1
+                servo_sol_dirsek = 2
+                servo_sol_omuz = 3
+
                 print(sol_omuz)
                 print("---------------------------------------")
                 print(sag_dirsek)
 
-                self.send_command(0, sag_dirsek)
-                self.send_command(1, sag_omuz)
-                self.send_command(2, sol_dirsek)
-                self.send_command(3, sol_omuz)
+                self.send_command(servo_sag_dirsek, sag_dirsek)
+                self.send_command(servo_sag_omuz, sag_omuz)
+                self.send_command(servo_sol_dirsek, sol_dirsek)
+                self.send_command(servo_sol_omuz, sol_omuz)
