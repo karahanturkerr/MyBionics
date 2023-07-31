@@ -3,6 +3,7 @@ import serial
 import concurrent.futures
 from el_kontrol import HandGestureController
 from kol_hareket import ArmGestureController
+from kafa_hareket import HeadController
 
 
 def arduino_connect():
@@ -37,8 +38,10 @@ if __name__ == "__main__":
 
     hand_gesture_controller = HandGestureController(ser=ser)
     arm_gesture_controller = ArmGestureController(ser=ser)
+    head_gesture_controller = HeadController(ser=ser)
 
     cap = open_camera(func=(
         hand_gesture_controller.process_gestures,
         arm_gesture_controller.process_gestures,
+        head_gesture_controller.process_gestures,
     ))
