@@ -1,5 +1,4 @@
 import threading
-
 import cv2
 import time
 import mediapipe as mp
@@ -9,11 +8,9 @@ import math
 class ArmGestureController:
     def __init__(self, ser):
         self.ser = ser
-
         self.mpPose = mp.solutions.pose
         self.pose = self.mpPose.Pose()
         self.mpDraw = mp.solutions.drawing_utils
-
         self.thread_lock = threading.Lock()
 
     def angle_limit(self, value, min_value, max_value):  # aciyi 0 ile 180 derece arasında sınırlandırır
@@ -35,9 +32,6 @@ class ArmGestureController:
         if angle < 0: angle += 360
 
         angle = int(angle)
-
-        #
-
         # cv2.putText(img, str(int(angle)), (x2-40, y2+40), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 255), 2)
         return angle
 
