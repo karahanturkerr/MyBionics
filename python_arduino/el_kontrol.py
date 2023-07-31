@@ -11,19 +11,15 @@ def angle_limit(value, min_value, max_value):  # aciyi 0 ile 180 derece arasınd
 class HandGestureController:
     def __init__(self, ser):
         self.ser = ser
-
         self.mpHand = mp.solutions.hands
         self.hands = self.mpHand.Hands(max_num_hands=2)
         self.mpDraw = mp.solutions.drawing_utils
         self.previous_hand = None
-
         time.sleep(2)
-
         self.thread_lock = threading.Lock()
 
     def send_command(self, servo_num, angle):
         # Servo numarası ve açı değerini Arduino'ya gönder
-
         with self.thread_lock:
             command = f'{servo_num}:{angle}\n'
             self.ser.write(command.encode())
@@ -103,7 +99,7 @@ class HandGestureController:
                     # sag sol el ayrımı yapılır
                     if hand_side == "Sag":
                         self.send_command(servo_sag_bp, sag_bas_parmak_angle)
-                        print("sag elllllllllllllllllllll")
+                        #print("sag elllllllllllllllllllll")
                         self.send_command(servo_sag_ip, isaret_parmak_angle)
                         self.send_command(servo_sag_op, orta_parmak_angle)
                         self.send_command(servo_sag_yp, yuzuk_parmak_angle)
@@ -111,7 +107,7 @@ class HandGestureController:
 
                     elif hand_side == "Sol":
                         self.send_command(servo_sol_bp, sol_bas_parmak_angle)
-                        print(hand_side)
+                        #print(hand_side)
                         self.send_command(servo_sol_ip, isaret_parmak_angle)
                         self.send_command(servo_sol_op, orta_parmak_angle)
                         self.send_command(servo_sol_yp, yuzuk_parmak_angle)
