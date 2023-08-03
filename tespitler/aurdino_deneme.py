@@ -25,6 +25,9 @@ class HandGestureController:
         self.cap = cv2.VideoCapture(video_capture)
         self.cap.set(3, 1280)
         self.cap.set(4, 720)
+        self.mpPose = mp.solutions.pose
+        self.pose = self.mpPose.Pose()
+        self.mpDraw = mp.solutions.drawing_utils
         self.mpHand = mp.solutions.hands
         self.hands = self.mpHand.Hands(max_num_hands=1)
         self.mpDraw = mp.solutions.drawing_utils
@@ -37,11 +40,22 @@ class HandGestureController:
             img = cv2.flip(img, 1)
             imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             results = self.hands.process(imgRGB)
+            results2 = self.pose.process(imgRGB)
 
-            if results.multi_hand_landmarks:
+            lmList2 = []
+
+            if results.multi_hand_landmarks or results2.pose_landmarks:
+                self.mpDraw.draw_landmarks(img, results2.pose_landmarks, self.mpPose.POSE_CONNECTIONS)
+
                 for handLms in results.multi_hand_landmarks:
                     if self.previous_hand is None or handLms != self.previous_hand:
                         self.previous_hand = handLms
+
+                        for id, lm in enumerate(results2.pose_landmarks.landmark):
+                            h, w, _ = img.shape
+                            cx, cy = int(lm.x * w), int(lm.y * h)
+                            lmList2.append([id, cx, cy])
+
 
                         x_coords = [lm.x * img.shape[1] for lm in handLms.landmark]
                         y_coords = [lm.y * img.shape[0] for lm in handLms.landmark]
@@ -72,7 +86,6 @@ class HandGestureController:
                         x8, y8 = handLms.landmark[17].x, handLms.landmark[17].y
                         x9, y9 = handLms.landmark[20].x, handLms.landmark[20].y
 
-                        # Diğer el landmarkları için gerekli işlemleri burada yapabilirsiniz...
 
                         # Distance hesaplamaları ve açı dönüşümleri
                         distance1 = int((x2 - x) * img.shape[0])
@@ -93,6 +106,26 @@ class HandGestureController:
                         angle4 = angle_limit(angle4, 0, 180)
                         angle5 = angle_limit(angle5, 0, 180)
 
+                        if len(lmList2) != 0:
+                            sag_dirsek = self.findAngle(img, 11, 13, 15, lmList2)
+                            sag_omuz = self.findAngle(img, 13, 11, 29, lmList2)
+                            sol_dirsek = 360 - self.findAngle(img, 12, 14, 22, lmList2)
+                            sol_omuz = 360 - self.findAngle(img, 14, 12, 24, lmList2)
+
+                            sag_dirsek = self.angle_limit(sag_dirsek, 0, 180)
+                            sag_omuz = self.angle_limit(sag_omuz, 0, 180)
+                            sol_dirsek = self.angle_limit(sol_dirsek, 0, 180)
+                            sol_omuz = self.angle_limit(sol_omuz, 0, 180)
+
+                            print(sol_omuz)
+                            print("---------------------------------------")
+                            print(sag_dirsek)
+
+                            self.send_command(1, sag_dirsek)
+                            self.send_command(2, sag_omuz)
+                            #self.send_command(2, sol_dirsek)
+                            #self.send_command(3, sol_omuz)
+
                         print("mesafe: " + str(distance2))
                         print("aci: " + str(angle2))
 
@@ -111,8 +144,8 @@ class HandGestureController:
                         else:
                             # Diğer durumlar için yapmak istediğiniz işlemi burada yapabilirsiniz.
                             pass
-                        send_command(servo_num2, angle2)
-                        send_command(servo_num3, angle3)
+                        #send_command(servo_num2, angle2)
+                        #send_command(servo_num3, angle3)
                         send_command(servo_num4, angle4)
                         send_command(servo_num5, angle5)
 
@@ -125,6 +158,6 @@ class HandGestureController:
             cv2.waitKey(1)
 
 
-# Sınıf örneğini oluşturup işlemi başlatabilirsiniz
+#Sınıf örneğini oluşturup işlemi başlatabilirsiniz
 controller = HandGestureController()
 controller.process_gestures()
