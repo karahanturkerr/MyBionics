@@ -1,5 +1,3 @@
-# Import OpenCV2 for image processing
-# Import os for file path
 import cv2
 import os
 
