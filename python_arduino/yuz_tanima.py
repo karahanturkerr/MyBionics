@@ -1,9 +1,10 @@
 import cv2
 import numpy as np
 
+
 class FaceRecognition:
     def __init__(self):
-    
+
         self.recognizer = cv2.face.LBPHFaceRecognizer_create()
         self.recognizer.read('deneme/egitim.yml')
         self.cascadePath = "haarcascade_frontalface_default.xml"
@@ -12,28 +13,31 @@ class FaceRecognition:
 
     def process_gestures(self, imgRGB, im):
 
-        gray = cv2.cvtColor(im,cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 
-        faces = self.faceCascade.detectMultiScale(gray, 1.2,5)
+        faces = self.faceCascade.detectMultiScale(gray, 1.2, 5)
 
-        for(x,y,w,h) in faces:
+        detected_faces = []
 
-            cv2.rectangle(im, (x-20,y-20), (x+w+20,y+h+20), (0,255,255), 2)
+        for (x, y, w, h) in faces:
 
-            Id, confidence = self.recognizer.predict(gray[y:y+h, x:x+w])
+            cv2.rectangle(im, (x - 20, y - 20), (x + w + 20, y + h + 20), (0, 255, 255), 2)
+
+            Id, confidence = self.recognizer.predict(gray[y:y + h, x:x + w])
 
             if Id == 1:
                 Id = "Karahan"
             elif Id == 2:
                 Id = "messi"
             else:
-                print(Id)
                 Id = "Unknow"
 
-            #cv2.rectangle(im, (x-22,y-90), (x+w+22, y-22), (0,255,255), 1)
-            cv2.putText(im, str(Id), (x-20,y-25), self.font, 1, (255,255,255), 2)
+            detected_faces.append(Id)
 
+            # cv2.rectangle(im, (x-22,y-90), (x+w+22, y-22), (0,255,255), 1)
+            cv2.putText(im, str(Id), (x - 20, y - 25), self.font, 1, (255, 255, 255), 2)
 
+        return detected_faces
 
 
 
