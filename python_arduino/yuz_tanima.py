@@ -11,7 +11,7 @@ class FaceRecognition:
         self.faceCascade = cv2.CascadeClassifier(self.cascadePath);
         self.font = cv2.FONT_HERSHEY_TRIPLEX
 
-    def process_gestures(self, imgRGB, im):
+    def process_gestures(self, imgRGB, im, is_now_face=False):
 
         gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 
@@ -28,13 +28,13 @@ class FaceRecognition:
             if Id == 1:
                 Id = "Karahan"
             elif Id == 2:
-                Id = "messi"
+                Id = "karahann"
             else:
                 Id = "Unknow"
 
             detected_faces.append(Id)
 
-            # cv2.rectangle(im, (x-22,y-90), (x+w+22, y-22), (0,255,255), 1)
+            cv2.rectangle(im, (x-22,y-90), (x+w+22, y-22), (0,255,255), 1)
             cv2.putText(im, str(Id), (x - 20, y - 25), self.font, 1, (255, 255, 255), 2)
 
         return detected_faces

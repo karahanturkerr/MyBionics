@@ -2,6 +2,7 @@ import cv2
 import time
 import mediapipe as mp
 import threading
+from yuz_tanima import FaceRecognition
 
 
 def angle_limit(value, min_value, max_value):  # aciyi 0 ile 180 derece arasında sınırlandırır
@@ -9,10 +10,10 @@ def angle_limit(value, min_value, max_value):  # aciyi 0 ile 180 derece arasınd
 
 
 class HandGestureController:
-    def __init__(self, ser):
+    def __init__(self, ser=False):
         self.ser = ser
         self.mpHand = mp.solutions.hands
-        self.hands = self.mpHand.Hands(max_num_hands=2)
+        self.hands = self.mpHand.Hands(max_num_hands = 2)
         self.mpDraw = mp.solutions.drawing_utils
         self.previous_hand = None
         time.sleep(2)
@@ -22,11 +23,14 @@ class HandGestureController:
     def send_command(self, servo_num, angle, direction):# Servo numarası ve açı değerini Arduino'ya gönder
         with self.thread_lock:
             command = f'{servo_num}:{angle}:{direction}\n'
-            self.ser.write(command.encode())
+            #self.ser.write(command.encode())
 
 
-    def process_gestures(self, imgRGB, img):
+    def process_gestures(self, imgRGB, img, is_now_face):
         results = self.hands.process(imgRGB)
+        # face_controller = FaceRecognition()
+        # detected_faces = face_controller.process_gestures(imgRGB, img)
+
 
         if results.multi_hand_landmarks:
             for handLms in results.multi_hand_landmarks:
@@ -41,11 +45,22 @@ class HandGestureController:
                     # Elin tamamını kapsayacak şekilde sınırlayıcı kutu oluştur
                     cv2.rectangle(img, (min_x - 20, min_y - 20), (max_x + 20, max_y + 20), (0, 255, 0), 2)
 
-                    # Elin yanına metin ekle
-                    hand_side = "Sag" if x_coords[17] > x_coords[5] else "Sol"
-                    font = cv2.FONT_HERSHEY_SIMPLEX
-                    cv2.putText(img, hand_side + " el", (min_x - 70, min_y - 40), font, 1, (255, 255, 255), 2)
-                    self.mpDraw.draw_landmarks(img, handLms, self.mpHand.HAND_CONNECTIONS)
+                    if x_coords[17] > x_coords[5]:
+                        hand_side = "Sag"
+                    elif x_coords[5] > x_coords[17]:
+                        hand_side = "Sol"
+                    else:
+                        hand_side = None
+
+                    if hand_side:
+                        font = cv2.FONT_HERSHEY_SIMPLEX
+                        cv2.putText(img, hand_side + " el", (min_x - 70, min_y - 40), font, 1, (255, 255, 255), 2)
+
+
+
+
+
+
 
                     # elin noktalarının koordinatları hesaplanır
                     x, y = handLms.landmark[3].x, handLms.landmark[3].y
@@ -69,7 +84,7 @@ class HandGestureController:
                     sag_bas_parmak = int((x2 - x) * img.shape[0])
                     sag_bas_parmak_kisa = int((y - y1) * img.shape[0])
                     sol_bas_parmak = int((x - x2) * img.shape[0])
-                    sol_bas_parmak_kisa = int(-((y1 - y) * img.shape[0]))
+                    sol_bas_parmak_kisa = int(((y - y1) * img.shape[0]))
 
                     isaret_parmak = int((y2 - y3) * img.shape[0])
                     orta_parmak = int((y4 - y5) * img.shape[0])
@@ -77,19 +92,19 @@ class HandGestureController:
                     serce_parmak = int((y8 - y9) * img.shape[0])
 
                     # aci ve limitleri belirlendi
-                    sag_bas_parmak_angle = angle_limit(170 - int((sag_bas_parmak / 70) * 170), 10, 170)
-                    sag_bas_parmak_kisa_angle = angle_limit(int((sag_bas_parmak_kisa / 37) * 170), 10, 170)
+                    sag_bas_parmak_angle = angle_limit(170 - int((sag_bas_parmak / 70) * 170), 10, 160)
+                    sag_bas_parmak_kisa_angle = angle_limit(int((sag_bas_parmak_kisa / 37) * 170), 10, 150)
 
-                    sol_bas_parmak_angle = angle_limit(int((sol_bas_parmak / 70) * 170), 10, 170)
-                    sol_bas_parmak_kisa_angle = angle_limit(int((sol_bas_parmak_kisa / 37) * 170), 10, 170)
+                    sol_bas_parmak_angle = angle_limit(int((sol_bas_parmak / 70) * 170), 10, 160)
+                    sol_bas_parmak_kisa_angle = angle_limit(int((sol_bas_parmak_kisa / 37) * 170), 10, 160)
 
-                    isaret_parmak_angle = angle_limit(int((isaret_parmak / 150) * 170), 10, 170)
-                    orta_parmak_angle = angle_limit(int((orta_parmak / 175) * 170), 10, 170)
-                    yuzuk_parmak_angle = angle_limit(int((yuzuk_parmak / 163) * 170), 10, 170)
-                    serce_parmak_angle = angle_limit(int((serce_parmak / 133) * 170), 10, 170)
+                    isaret_parmak_angle = angle_limit(int((isaret_parmak / 150) * 170), 10, 160)
+                    orta_parmak_angle = angle_limit(int((orta_parmak / 175) * 170), 10, 160)
+                    yuzuk_parmak_angle = angle_limit(int((yuzuk_parmak / 163) * 170), 10, 160)
+                    serce_parmak_angle = angle_limit(int((serce_parmak / 133) * 170), 10, 160)
 
-                    # print("mesafe: " + str(isaret_parmak))
-                    # print("aci: " + str(isaret_parmak_angle))
+                    print("mesafe: " + str(sag_bas_parmak_kisa))
+                    print("aci: " + str(sag_bas_parmak_kisa_angle))
 
                     # servolar isimlerindirildi
                     servo_sag_bp = 0
@@ -108,41 +123,54 @@ class HandGestureController:
                     servo_sol_sp = 10
                     servo_sol_omuz = 9
 
+                    print(is_now_face)
+                    if is_now_face:
+                        print(is_now_face)
+                        self.mpDraw.draw_landmarks(img, handLms, self.mpHand.HAND_CONNECTIONS)
+                        if hand_side == "Sag":
+                            #print("sag el")
+                            self.send_command(7, 20, 1)
+                            self.send_command(8, 90, 1)
+                            self.send_command(9, 50, 1)
+                            self.send_command(10, 90, 1)
 
-                    # sag sol el ayrımı yapılır
-                    if hand_side == "Sag":
+                            #self.send_command(servo_sag_bp, sag_bas_parmak_angle, 1)
+                            #self.send_command(servo_sag_bp_ks, sag_bas_parmak_kisa_angle, 1)
+                            self.send_command(servo_sag_ip, isaret_parmak_angle, 1)
+                            self.send_command(servo_sag_op, orta_parmak_angle, 1)
+                            self.send_command(servo_sag_yp, yuzuk_parmak_angle, 1)
+                            self.send_command(servo_sag_sp, serce_parmak_angle, 1)
 
-                        self.send_command(7, 20, 1)
-                        self.send_command(8, 90, 1)
-                        self.send_command(9, 90, 1)
-                        self.send_command(10, 90, 1)
+                        elif hand_side == "Sol":
+                            #print("sol el")
+                            self.send_command(9, 90, 2)
+                            self.send_command(8, 160, 2)
+                            self.send_command(7, 90, 2)
+                            self.send_command(6, 90, 2)
+                            #self.send_command(servo_sol_omuz, 150, 2)
 
-                        #self.send_command(servo_sag_bp, sag_bas_parmak_angle, 1)
-                        self.send_command(servo_sag_bp_ks, sag_bas_parmak_kisa_angle, 1)
-                        self.send_command(servo_sag_ip, isaret_parmak_angle, 1)
-                        self.send_command(servo_sag_op, orta_parmak_angle, 1)
-                        self.send_command(servo_sag_yp, yuzuk_parmak_angle, 1)
-                        self.send_command(servo_sag_sp, serce_parmak_angle, 1)
-                        print(servo_sag_bp)
-                        print(servo_sag_bp_ks)
-                        print(servo_sag_ip)
+                            self.send_command(servo_sol_bp, sol_bas_parmak_angle, 2)
+                            self.send_command(servo_sol_bp_ks, sol_bas_parmak_kisa_angle, 2)
+                            self.send_command(90, isaret_parmak_angle, 2)
+                            self.send_command(servo_sol_op, orta_parmak_angle, 2)
+                            self.send_command(servo_sol_yp, yuzuk_parmak_angle, 2)
+                            self.send_command(servo_sol_sp, serce_parmak_angle, 2)
+                        else:
+                            pass
 
-                    elif hand_side == "Sol":
-                        self.send_command(9, 90, 2)
-                        self.send_command(8, 160, 2)
-                        self.send_command(7, 90, 2)
-                        self.send_command(6, 90, 2)
-                        #self.send_command(servo_sol_omuz, 150, 2)
 
-                        self.send_command(servo_sol_bp, sol_bas_parmak_angle, 2)
-                        self.send_command(servo_sol_bp_ks, sol_bas_parmak_kisa_angle, 2)
-                        self.send_command(90, isaret_parmak_angle, 2)
-                        self.send_command(servo_sol_op, orta_parmak_angle, 2)
-                        self.send_command(servo_sol_yp, yuzuk_parmak_angle, 2)
-                        self.send_command(servo_sol_sp, serce_parmak_angle, 2)
-                    else:
-                        pass
-                        #self.send_command(9, 150, 1)
+        if not results.multi_hand_landmarks:
+
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            #cv2.putText(img, "El tespit edilmedi", (img.shape[1] - 300, 40), font, 1, (255, 255, 255), 2)
+            #print("el yok")
+
+            self.send_command(7, 100, 1)
+
+
+
 
         else:
             self.previous_hand = None
+        # else:
+        #     cv2.putText(img, "Yuz taninmadi", (img.shape[1] - 1250, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
