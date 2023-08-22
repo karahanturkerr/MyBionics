@@ -12,8 +12,7 @@ class MyBionics:
         self.hand_gesture_controller = HandGestureController()
         self.face_recognition_gesture_controller = FaceRecognitionGestureController()
 
-    @staticmethod
-    def camera(func: tuple, source=0):
+    def camera(self, func: tuple, source=0):
         cap = cv2.VideoCapture(source)
         cap.set(3, CAP_WIDTH)
         cap.set(4, CAP_HEIGHT)
@@ -23,20 +22,11 @@ class MyBionics:
             img = cv2.flip(img, 1)
             img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-            with concurrent.futures.ThreadPoolExecutor(max_workers=10) as exec:
-                _ = [exec.submit(f, img_rgb, img, False) for f in func]
+            is_detect_face = self.face_recognition_gesture_controller.process_gestures(img_rgb, img, False)
 
-            # for f in func:
-            #     is_now_face = False
-            #
-            #     res = f(img_rgb, img, is_now_face)
-
-                # if res and "karahann" in res:
-                #     is_now_face = True
-                #     print(is_now_face)
-
-            # detected_faces = face_recognition.process_gestures(imgRGB, img)
-            # print("Algılanan yüzler:", detected_faces)
+            if len(is_detect_face) > 0:
+                with concurrent.futures.ThreadPoolExecutor(max_workers=10) as exec:
+                    _ = [exec.submit(f, img_rgb, img, False) for f in func]
 
             cv2.imshow("img", img)
             key = cv2.waitKey(10)
@@ -46,5 +36,4 @@ class MyBionics:
     def start(self):
         self.camera(func=(
             self.hand_gesture_controller.process_gestures,
-            self.face_recognition_gesture_controller.process_gestures
         ))
