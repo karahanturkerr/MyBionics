@@ -1,0 +1,2 @@
+CAP_WIDTH: int = 1280
+CAP_HEIGHT: int = 720
