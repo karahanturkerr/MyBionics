@@ -6,6 +6,7 @@ from config import Config
 from src.gestures.arm_gesture_controller import ArmGestureController
 from src.gestures.face_recognition_gesture_controller import FaceRecognitionGestureController
 from src.gestures.hand_gesture_controller import HandGestureController
+from src.gestures.head_gesture_controller import HeadGestureController
 from utils.base_definitions import CAP_WIDTH, CAP_HEIGHT, BOUND_RATE, SERIAL_PORT
 import serial
 
@@ -21,6 +22,7 @@ class MyBionics:
 
         self.hand_gesture_controller = HandGestureController(serial_com=self.serial_com)
         self.arm_gesture_controller = ArmGestureController(serial_com=self.serial_com)
+        self.head_gesture_controller = HeadGestureController(serial_com=self.serial_com)
 
     def arduino_connect(self):
         self.serial_com = serial.Serial(SERIAL_PORT, BOUND_RATE)
@@ -52,5 +54,6 @@ class MyBionics:
     def start(self):
         self.camera(func=(
             self.hand_gesture_controller.process_gestures,
-            self.arm_gesture_controller.process_gestures
+            self.arm_gesture_controller.process_gestures,
+            self.head_gesture_controller.process_gestures,
         ))
