@@ -1,2 +1,5 @@
 CAP_WIDTH: int = 1280
 CAP_HEIGHT: int = 720
+
+SERIAL_PORT: str = "COM5"
+BOUND_RATE: int = 9600

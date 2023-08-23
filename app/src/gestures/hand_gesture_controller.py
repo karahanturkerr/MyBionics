@@ -9,8 +9,8 @@ def angle_limit(value, min_value, max_value):  # aciyi 0 ile 180 derece arasınd
 
 
 class HandGestureController:
-    def __init__(self, ser=False):
-        self.ser = ser
+    def __init__(self, serial_com=None):
+        self.serial_com = serial_com
         self.mpHand = mp.solutions.hands
         self.hands = self.mpHand.Hands(max_num_hands=2)
         self.mpDraw = mp.solutions.drawing_utils
@@ -21,12 +21,12 @@ class HandGestureController:
     def send_command(self, servo_num, angle, direction):  # Servo numarası ve açı değerini Arduino'ya gönder
         with self.thread_lock:
             command = f'{servo_num}:{angle}:{direction}\n'
-            # self.ser.write(command.encode())
 
-    def process_gestures(self, imgRGB, img, is_now_face):
+            if self.serial_com:
+                self.serial_com.write(command.encode())
+
+    def process_gestures(self, imgRGB, img):
         results = self.hands.process(imgRGB)
-        # face_controller = FaceRecognition()
-        # detected_faces = face_controller.process_gestures(imgRGB, img)
 
         if results.multi_hand_landmarks:
             for handLms in results.multi_hand_landmarks:
@@ -147,12 +147,6 @@ class HandGestureController:
                         pass
 
         if not results.multi_hand_landmarks:
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            # cv2.putText(img, "El tespit edilmedi", (img.shape[1] - 300, 40), font, 1, (255, 255, 255), 2)
-            # print("el yok")
-
             self.send_command(7, 100, 1)
         else:
             self.previous_hand = None
-        # else:
-        #     cv2.putText(img, "Yuz taninmadi", (img.shape[1] - 1250, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
