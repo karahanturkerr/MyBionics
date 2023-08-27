@@ -6,7 +6,7 @@ import serial
 
 
 def send_command(servo_num, angle, direction):
-    # Servo numarası ve açı değerini Arduino'ya gönder
+    #Servo numarası ve açı değerini Arduino'ya gönder
     #command = f'{servo_num}:{angle}:{direction}\n'
     #ser.write(command.encode())
     pass
@@ -14,22 +14,25 @@ def send_command(servo_num, angle, direction):
 def find_angle():
     x1, y1 = lmList[11][1:]
     h, w, _ = frame.shape
-    x, y = int(nose_landmark.x * w), int(460 - (nose_landmark.y * h))
-    fark = x1-x
-    aci = int((fark / 480) * 160)
+    x, y = int(nose_landmark.x * w), int((nose_landmark.y * h))
+    fark = y1-y
+    aci = int((fark / 420) * 160)
     aci2 = int((fark / 290) * 160)
 
-    print("x : " + str(x1))
+    # print("x : " + str(x1))
     print("*****************")
     print("fark : " + str(fark))
+    print("*****************")
+    print("aci: " + str(aci))
 
 
-    if x1 > 800:
-        print("aci : " + str(aci))
-        send_command(0,aci,1)
-    else:
-        print("aci : " + str(aci2))
-        send_command(0, aci, 1)
+
+    # if x1 > 800:
+    #     print("aci : " + str(aci))
+    #     send_command(0,aci,1)
+    # else:
+    #     print("aci : " + str(aci2))
+    #     send_command(0, aci, 1)
 
 
 
@@ -54,8 +57,8 @@ while True:
     lmList = []
 
     if results.multi_face_landmarks:
-        if results2.pose_landmarks:
-            mpDraw.draw_landmarks(frame, results2.pose_landmarks, mpPose.POSE_CONNECTIONS)
+        # if results2.pose_landmarks:
+        #     mpDraw.draw_landmarks(frame, results2.pose_landmarks, mpPose.POSE_CONNECTIONS)
 
         for id, lm in enumerate(results2.pose_landmarks.landmark):
             h, w, _ = frame.shape

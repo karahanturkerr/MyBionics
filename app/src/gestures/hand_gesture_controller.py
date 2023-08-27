@@ -25,6 +25,8 @@ class HandGestureController:
             if self.serial_com:
                 self.serial_com.write(command.encode())
 
+        print("el icin komut gönderildi")
+
     def process_gestures(self, imgRGB, img):
         results = self.hands.process(imgRGB)
 
@@ -82,16 +84,16 @@ class HandGestureController:
                     serce_parmak = int((y8 - y9) * img.shape[0])
 
                     # aci ve limitleri belirlendi
-                    sag_bas_parmak_angle = angle_limit(170 - int((sag_bas_parmak / 70) * 170), 10, 160)
-                    sag_bas_parmak_kisa_angle = angle_limit(int((sag_bas_parmak_kisa / 37) * 170), 10, 150)
+                    sag_bas_parmak_angle = angle_limit(170 - int((sag_bas_parmak / 70) * 170), 15, 155)
+                    sag_bas_parmak_kisa_angle = angle_limit(int((sag_bas_parmak_kisa / 37) * 170), 15, 155)
 
-                    sol_bas_parmak_angle = angle_limit(int((sol_bas_parmak / 70) * 170), 10, 160)
-                    sol_bas_parmak_kisa_angle = angle_limit(int((sol_bas_parmak_kisa / 37) * 170), 10, 160)
+                    sol_bas_parmak_angle = angle_limit(int((sol_bas_parmak / 70) * 170), 15, 160)
+                    sol_bas_parmak_kisa_angle = angle_limit(int((sol_bas_parmak_kisa / 37) * 170), 15, 155)
 
-                    isaret_parmak_angle = angle_limit(int((isaret_parmak / 150) * 170), 10, 160)
-                    orta_parmak_angle = angle_limit(int((orta_parmak / 175) * 170), 10, 160)
-                    yuzuk_parmak_angle = angle_limit(int((yuzuk_parmak / 163) * 170), 10, 160)
-                    serce_parmak_angle = angle_limit(int((serce_parmak / 133) * 170), 10, 160)
+                    isaret_parmak_angle = angle_limit(int((isaret_parmak / 150) * 170), 15, 155)
+                    orta_parmak_angle = angle_limit(int((orta_parmak / 175) * 170), 15, 155)
+                    yuzuk_parmak_angle = angle_limit(int((yuzuk_parmak / 163) * 170), 15, 155)
+                    serce_parmak_angle = angle_limit(int((serce_parmak / 133) * 170), 15, 155)
 
                     print("mesafe: " + str(sag_bas_parmak_kisa))
                     print("aci: " + str(sag_bas_parmak_kisa_angle))
@@ -103,46 +105,45 @@ class HandGestureController:
                     servo_sag_op = 3
                     servo_sag_yp = 4
                     servo_sag_sp = 5
-                    servo_sag_omuz = 6
-
-                    servo_sol_bp = 15
-                    servo_sol_bp_ks = 14
-                    servo_sol_ip = 13
-                    servo_sol_op = 12
-                    servo_sol_yp = 11
-                    servo_sol_sp = 10
-                    servo_sol_omuz = 9
+                    # servo_sag_omuz = 6
+                    # servo_sol_bp = 15
+                    # servo_sol_bp_ks = 14
+                    # servo_sol_ip = 13
+                    # servo_sol_op = 12
+                    # servo_sol_yp = 11
+                    # servo_sol_sp = 10
+                    # servo_sol_omuz = 9
 
                     self.mpDraw.draw_landmarks(img, handLms, self.mpHand.HAND_CONNECTIONS)
 
                     if hand_side == "Sag":
                         # print("sag el")
-                        self.send_command(7, 20, 1)
-                        self.send_command(8, 90, 1)
-                        self.send_command(9, 50, 1)
-                        self.send_command(10, 90, 1)
+                        # self.send_command(7, 20, 1)
+                        # self.send_command(8, 90, 1)
+                        # self.send_command(9, 50, 1)
+                        # self.send_command(10, 90, 1)
 
-                        # self.send_command(servo_sag_bp, sag_bas_parmak_angle, 1)
-                        # self.send_command(servo_sag_bp_ks, sag_bas_parmak_kisa_angle, 1)
+                        self.send_command(servo_sag_bp, sag_bas_parmak_angle, 1)
+                        self.send_command(servo_sag_bp_ks, sag_bas_parmak_kisa_angle, 1)
                         self.send_command(servo_sag_ip, isaret_parmak_angle, 1)
                         self.send_command(servo_sag_op, orta_parmak_angle, 1)
                         self.send_command(servo_sag_yp, yuzuk_parmak_angle, 1)
                         self.send_command(servo_sag_sp, serce_parmak_angle, 1)
 
                     elif hand_side == "Sol":
-                        # print("sol el")
-                        self.send_command(9, 90, 2)
-                        self.send_command(8, 160, 2)
-                        self.send_command(7, 90, 2)
-                        self.send_command(6, 90, 2)
-                        # self.send_command(servo_sol_omuz, 150, 2)
-
-                        self.send_command(servo_sol_bp, sol_bas_parmak_angle, 2)
-                        self.send_command(servo_sol_bp_ks, sol_bas_parmak_kisa_angle, 2)
-                        self.send_command(90, isaret_parmak_angle, 2)
-                        self.send_command(servo_sol_op, orta_parmak_angle, 2)
-                        self.send_command(servo_sol_yp, yuzuk_parmak_angle, 2)
-                        self.send_command(servo_sol_sp, serce_parmak_angle, 2)
+                        print("sol el")
+                        # self.send_command(9, 90, 2)
+                        # self.send_command(8, 160, 2)
+                        # self.send_command(7, 90, 2)
+                        # self.send_command(6, 90, 2)
+                        # # self.send_command(servo_sol_omuz, 150, 2)
+                        #
+                        # self.send_command(servo_sol_bp, sol_bas_parmak_angle, 2)
+                        # self.send_command(servo_sol_bp_ks, sol_bas_parmak_kisa_angle, 2)
+                        # self.send_command(90, isaret_parmak_angle, 2)
+                        # self.send_command(servo_sol_op, orta_parmak_angle, 2)
+                        # self.send_command(servo_sol_yp, yuzuk_parmak_angle, 2)
+                        # self.send_command(servo_sol_sp, serce_parmak_angle, 2)
                     else:
                         pass
 
