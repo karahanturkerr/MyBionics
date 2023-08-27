@@ -3,6 +3,12 @@ import cv2
 import cvzone
 from cvzone.FaceMeshModule import FaceMeshDetector
 from cvzone.PlotModule import LivePlot
+
+
+def angle_limit(value, min_value, max_value):  # Açıyı 0 ile 180 derece arasında sınırlandırır
+    return min(max(value, min_value), max_value)
+
+
 class EyeGestureController:
     def __init__(self, serial_com):
         self.serial_com = serial_com
@@ -11,14 +17,10 @@ class EyeGestureController:
         self.counter_left = 0
         self.counter_right = 0
 
-    def angle_limit(self, value, min_value, max_value):  # Açıyı 0 ile 180 derece arasında sınırlandırır
-        return min(max(value, min_value), max_value)
-
-    def send_command(self, servo_num, angle, direction):
-        # Servo numarası ve açı değerini Arduino'ya gönder
+    def send_command(self, servo_num, angle, direction):  # Servo numarası ve açı değerini Arduino'ya gönder
         with self.thread_lock:
-            command = f'{servo_num}:{angle}:{direction}\n'
-
+            angle1 = angle_limit(angle, 40, 130)
+            command = f'{servo_num}:{angle1}:{direction}\n'
             if self.serial_com:
                 self.serial_com.write(command.encode())
 
@@ -69,14 +71,14 @@ class EyeGestureController:
             if ratioAvg_left < 33:
                 color_left = (0, 255, 0)
                 self.counter_left = 1
-                self.send_command(1, 70, 1)
+                self.send_command(5, 70, 1)
                 print("sol k gönderildi....")
 
 
             elif ratioAvg_left >= 40:
                 color_left = (0, 0, 255)
                 self.counter_left = 0
-                self.send_command(1, 90, 1)
+                self.send_command(5, 90, 1)
                 print("sol a gönderildi....")
 
             # Right Eye
@@ -105,15 +107,16 @@ class EyeGestureController:
 
             if ratioAvg_right < 25:
                 self.counter_right = 1
+
                 self.color_right = (0, 255, 0)
-                self.send_command(0, 90, 1)
+                self.send_command(4, 90, 1)
                 print("sag k gönderildi....")
 
 
             elif ratioAvg_right >= 30:
                 self.counter_right = 0
                 color_right = (0, 0, 255)
-                self.send_command(0, 50, 1)
+                self.send_command(4, 50, 1)
                 print("sag a gönderildi....")
 
             imgPlot_left = plotY_left.update(ratioAvg_left, color_left)

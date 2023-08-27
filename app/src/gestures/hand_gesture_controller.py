@@ -20,8 +20,8 @@ class HandGestureController:
 
     def send_command(self, servo_num, angle, direction):  # Servo numarası ve açı değerini Arduino'ya gönder
         with self.thread_lock:
-            command = f'{servo_num}:{angle}:{direction}\n'
-
+            angle1 = angle_limit(angle, 40, 130)
+            command = f'{servo_num}:{angle1}:{direction}\n'
             if self.serial_com:
                 self.serial_com.write(command.encode())
 
@@ -31,7 +31,10 @@ class HandGestureController:
         results = self.hands.process(imgRGB)
 
         if results.multi_hand_landmarks:
+
             for handLms in results.multi_hand_landmarks:
+                self.mpDraw.draw_landmarks(img, handLms, self.mpHand.HAND_CONNECTIONS)
+
                 if self.previous_hand is None or handLms != self.previous_hand:
                     self.previous_hand = handLms
 
@@ -54,7 +57,11 @@ class HandGestureController:
                         font = cv2.FONT_HERSHEY_SIMPLEX
                         cv2.putText(img, hand_side + " el", (min_x - 70, min_y - 40), font, 1, (255, 255, 255), 2)
 
-                    # elin noktalarının koordinatları hesaplanır
+                    # BİLEGİN NOKTALARININ KOORDİNATLARI HESAPLANIR
+                    wrist_x = handLms.landmark[self.mpHand.HandLandmark.WRIST].x * img.shape[1]
+                    wrist_y = handLms.landmark[self.mpHand.HandLandmark.WRIST].y * img.shape[1]
+
+                    # ELİN NOKTALARININ KOORDİNATLARI HESAPLANIR
                     x, y = handLms.landmark[3].x, handLms.landmark[3].y
                     x1, y1 = handLms.landmark[4].x, handLms.landmark[4].y
 
@@ -70,7 +77,6 @@ class HandGestureController:
                     x8, y8 = handLms.landmark[17].x, handLms.landmark[17].y
                     x9, y9 = handLms.landmark[20].x, handLms.landmark[20].y
 
-                    # Diğer el landmarkları için gerekli işlemleri burada yapabilirsiniz...
 
                     # Distance hesaplamaları ve açı dönüşümleri
                     sag_bas_parmak = int((x2 - x) * img.shape[0])
@@ -84,21 +90,23 @@ class HandGestureController:
                     serce_parmak = int((y8 - y9) * img.shape[0])
 
                     # aci ve limitleri belirlendi
-                    sag_bas_parmak_angle = angle_limit(170 - int((sag_bas_parmak / 70) * 170), 15, 155)
-                    sag_bas_parmak_kisa_angle = angle_limit(int((sag_bas_parmak_kisa / 37) * 170), 15, 155)
+                    '''SAG EL BİLEK ACISI HESAPLANACAK'''
+                    sag_bas_parmak_angle = 170 - int((sag_bas_parmak / 70) * 170)
+                    sag_bas_parmak_kisa_angle = int((sag_bas_parmak_kisa / 37) * 170)
 
-                    sol_bas_parmak_angle = angle_limit(int((sol_bas_parmak / 70) * 170), 15, 160)
-                    sol_bas_parmak_kisa_angle = angle_limit(int((sol_bas_parmak_kisa / 37) * 170), 15, 155)
+                    '''SOL EL BİLEK ACISI HESAPLANACAK'''
+                    sol_bas_parmak_angle = int((sol_bas_parmak / 70) * 170)
+                    sol_bas_parmak_kisa_angle = int((sol_bas_parmak_kisa / 37) * 170)
 
-                    isaret_parmak_angle = angle_limit(int((isaret_parmak / 150) * 170), 15, 155)
-                    orta_parmak_angle = angle_limit(int((orta_parmak / 175) * 170), 15, 155)
-                    yuzuk_parmak_angle = angle_limit(int((yuzuk_parmak / 163) * 170), 15, 155)
-                    serce_parmak_angle = angle_limit(int((serce_parmak / 133) * 170), 15, 155)
+                    isaret_parmak_angle = int((isaret_parmak / 150) * 170)
+                    orta_parmak_angle = int((orta_parmak / 175) * 170)
+                    yuzuk_parmak_angle = int((yuzuk_parmak / 163) * 170)
+                    serce_parmak_angle = int((serce_parmak / 133) * 170)
 
                     print("mesafe: " + str(sag_bas_parmak_kisa))
                     print("aci: " + str(sag_bas_parmak_kisa_angle))
 
-                    # servolar isimlerindirildi
+                    # SAĞ TARAF SERVOLAR İSİMLENDİRİLDİ
                     servo_sag_bp = 0
                     servo_sag_bp_ks = 1
                     servo_sag_ip = 2
@@ -106,6 +114,8 @@ class HandGestureController:
                     servo_sag_yp = 4
                     servo_sag_sp = 5
                     # servo_sag_omuz = 6
+
+                    # SOL TARAF SERVOLAR İSİMLENDİRİLDİ
                     # servo_sol_bp = 15
                     # servo_sol_bp_ks = 14
                     # servo_sol_ip = 13
@@ -114,7 +124,6 @@ class HandGestureController:
                     # servo_sol_sp = 10
                     # servo_sol_omuz = 9
 
-                    self.mpDraw.draw_landmarks(img, handLms, self.mpHand.HAND_CONNECTIONS)
 
                     if hand_side == "Sag":
                         # print("sag el")
@@ -148,6 +157,8 @@ class HandGestureController:
                         pass
 
         if not results.multi_hand_landmarks:
+            cv2.putText(img, "El Tespit Edilmedi", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
             self.send_command(7, 100, 1)
         else:
             self.previous_hand = None
