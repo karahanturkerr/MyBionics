@@ -71,14 +71,14 @@ class EyeGestureController:
             if ratioAvg_left < 33:
                 color_left = (0, 255, 0)
                 self.counter_left = 1
-                self.send_command(5, 70, 1)
+                self.send_command(12, 66, 1)
                 print("sol k gönderildi....")
 
 
             elif ratioAvg_left >= 40:
                 color_left = (0, 0, 255)
                 self.counter_left = 0
-                self.send_command(5, 90, 1)
+                self.send_command(12, 90, 1)
                 print("sol a gönderildi....")
 
             # Right Eye
@@ -109,19 +109,19 @@ class EyeGestureController:
                 self.counter_right = 1
 
                 self.color_right = (0, 255, 0)
-                self.send_command(4, 90, 1)
+                self.send_command(15, 110, 1)
                 print("sag k gönderildi....")
 
 
             elif ratioAvg_right >= 30:
                 self.counter_right = 0
                 color_right = (0, 0, 255)
-                self.send_command(4, 50, 1)
+                self.send_command(15, 90, 1)
                 print("sag a gönderildi....")
 
             imgPlot_left = plotY_left.update(ratioAvg_left, color_left)
             imgPlot_right = plotY_right.update(ratioAvg_right, color_right)
 
         if not faces:
-            self.send_command(0, 90, 1)
-            self.send_command(1, 70, 1)
+            self.send_command(15, 90, 1)
+            self.send_command(12, 90, 1)

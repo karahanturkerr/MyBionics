@@ -61,6 +61,9 @@ class HandGestureController:
                     wrist_x = handLms.landmark[self.mpHand.HandLandmark.WRIST].x * img.shape[1]
                     wrist_y = handLms.landmark[self.mpHand.HandLandmark.WRIST].y * img.shape[1]
 
+                    bilek_sag_angle = int((wrist_x / 1200) * 150)
+                    bilek_sol_angle = int((wrist_x / 1200) * 150)
+
                     # ELİN NOKTALARININ KOORDİNATLARI HESAPLANIR
                     x, y = handLms.landmark[3].x, handLms.landmark[3].y
                     x1, y1 = handLms.landmark[4].x, handLms.landmark[4].y
@@ -91,6 +94,7 @@ class HandGestureController:
 
                     # aci ve limitleri belirlendi
                     '''SAG EL BİLEK ACISI HESAPLANACAK'''
+                    bilek_sag_angle = int((wrist_x / 1200) * 150)
                     sag_bas_parmak_angle = 170 - int((sag_bas_parmak / 70) * 170)
                     sag_bas_parmak_kisa_angle = int((sag_bas_parmak_kisa / 37) * 170)
 
@@ -113,7 +117,11 @@ class HandGestureController:
                     servo_sag_op = 3
                     servo_sag_yp = 4
                     servo_sag_sp = 5
-                    # servo_sag_omuz = 6
+                    servo_sag_bilek = 7
+                    servo_sag_dirsek = 8             
+                    servo_sag_omuz_ss = 9
+                    servo_sag_omuz = 10
+                    servo_sag_omuz_ay = 11
 
                     # SOL TARAF SERVOLAR İSİMLENDİRİLDİ
                     # servo_sol_bp = 15
@@ -126,15 +134,16 @@ class HandGestureController:
 
 
                     if hand_side == "Sag":
-                        # print("sag el")
-                        # self.send_command(7, 20, 1)
-                        # self.send_command(8, 90, 1)
-                        # self.send_command(9, 50, 1)
-                        # self.send_command(10, 90, 1)
+                        print("sag el")
+                        self.send_command(servo_sag_omuz_ss, bilek_sag_angle, 1)
+                        self.send_command(servo_sag_bilek, 90, 1)
+                        self.send_command(servo_sag_dirsek, 40, 1)
+                        self.send_command(servo_sag_omuz, 50, 1)
+                        self.send_command(servo_sag_omuz_ay, 90, 1)
 
                         self.send_command(servo_sag_bp, sag_bas_parmak_angle, 1)
                         self.send_command(servo_sag_bp_ks, sag_bas_parmak_kisa_angle, 1)
-                        self.send_command(servo_sag_ip, isaret_parmak_angle, 1)
+                        #self.send_command(servo_sag_ip, isaret_parmak_angle, 1)
                         self.send_command(servo_sag_op, orta_parmak_angle, 1)
                         self.send_command(servo_sag_yp, yuzuk_parmak_angle, 1)
                         self.send_command(servo_sag_sp, serce_parmak_angle, 1)
@@ -159,6 +168,14 @@ class HandGestureController:
         if not results.multi_hand_landmarks:
             cv2.putText(img, "El Tespit Edilmedi", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
-            self.send_command(7, 100, 1)
+            self.send_command(8, 100, 1)
+            degree = 40
+            # for j in range(2):
+            #     self.send_command(8, degree, 1)
+            #     for i in range(12):
+            #         degree = degree + 5
+            #         self.send_command_hizli(8, degree, 1)
+
+
         else:
             self.previous_hand = None

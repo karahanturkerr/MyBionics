@@ -21,7 +21,7 @@ class HeadGestureController:
 
     def send_command(self, servo_num, angle, direction):  # Servo numarası ve açı değerini Arduino'ya gönder
         with self.thread_lock:
-            angle1 = angle_limit(angle, 40, 130)
+            angle1 = angle_limit(angle, 50, 120)
             command = f'{servo_num}:{angle1}:{direction}\n'
             if self.serial_com:
                 self.serial_com.write(command.encode())
@@ -61,17 +61,16 @@ class HeadGestureController:
 
 
                 fark_y = arm_y - nose_y
-                angle_up_down = int((fark_y / 420) * 160)
+                angle_up_down = angle_limit(int((fark_y / 420) * 160), 75, 105)
 
-
-                self.send_command(0, angle_left_right,2)
-                self.send_command(1, angle_up_down,2)
+                self.send_command(14, angle_left_right,1)
+                self.send_command(13, angle_up_down,1)
 
                 # Burunu işaretlemek için daire çiz
                 cv2.circle(frame, (nose_x, nose_y), 10, (255, 0, 255), -1)
 
 
         if not results.multi_face_landmarks:
-            cv2.putText(frame, "yuzsuz", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-            self.send_command(0, 90, 1)
-            self.send_command(1, 90, 1)
+            cv2.putText(frame, "Yuz Tespit Edilemedi", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            self.send_command(13, 90, 1)
+            self.send_command(14, 90, 1)

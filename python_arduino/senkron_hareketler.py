@@ -18,16 +18,18 @@ class ServoController:
         self.sag_goz = 13
 
 
-        self.sag_bas_par_eklem = 15
-        self.sag_bas_par = 14
-        self.sag_isaret = 13
-        self.sag_orta = 12
-        self.sag_yuzuk = 11
-        self.sag_serce = 10
-        self.sag_bilek = 9
+        self.sag_bas_par_eklem = 0
+        self.sag_bas_par = 1
+        self.sag_isaret = 2
+        self.sag_orta = 3
+        self.sag_yuzuk = 4
+        self.sag_serce = 5
+        self.sag_bilek = 7
         self.sag_dirsek = 8
-        self.sag_pazu = 7
-        self.sag_omuz = 6
+        self.sag_pazu = 9
+        self.sag_omuz_ss = 10
+        self.sag_omuz_ya = 11
+
 
         self.sol_bas_par_eklem = 1
         self.sol_bas_par = 0
@@ -39,6 +41,7 @@ class ServoController:
         self.sol_dirsek = 7
         self.sol_pazu = 8
         self.sol_omuz = 9
+
 
     def reset_funct(self):
         for i in range(2):
@@ -75,16 +78,20 @@ class ServoController:
 
         pass
 
+    def angle_limit(self, value, min_value, max_value):  # Açıyı 0 ile 180 derece arasında sınırlandırır
+        return min(max(value, min_value), max_value)
     def send_command(self, servo_num, angle, direction):
         for i in range(2):
-            command = f'{servo_num}:{angle}:{direction}\n'
+            angle1 = self.angle_limit(angle, 20, 150)
+            command = f'{servo_num}:{angle1}:{direction}\n'
             self.ser.write(command.encode())
             print(f"{servo_num} - komut gönderildi.")
             time.sleep(0.5)
 
     def send_command_hizli(self, servo_num, angle, direction,hiz = 0.03):
         for i in range(2):
-            command = f'{servo_num}:{angle}:{direction}\n'
+            angle1 = self.angle_limit(angle, 40, 150)
+            command = f'{servo_num}:{angle1}:{direction}\n'
             print(f"{servo_num} - komut gönderildi.")
             self.ser.write(command.encode())
             time.sleep(hiz)
@@ -106,6 +113,34 @@ class ServoController:
             print(f"{servo_num} - komut gönderildi.")
             self.ser.write(command.encode())
             time.sleep(hiz)
+
+    def yavas_ac_kapa(self,servo_num, angle, direction):
+        degree = angle
+        for j in range(5):
+            #self.send_command(servo_num, degree, direction)
+            for i in range(6):
+                degree = degree - 5
+                self.send_command_hizli(servo_num, degree, direction)
+            for i in range(6):
+                degree = degree + 5
+                self.send_command_hizli(servo_num, degree, direction)
+
+    def yavas_ac(self,servo_num, angle, direction):
+        degree = angle
+        for j in range(3):
+            #self.send_command(servo_num, degree, direction)
+            for i in range(5):
+                degree = degree + 2
+                self.send_command_hizli(servo_num, degree, direction)
+
+    def yavas_kapa(self,servo_num, angle, direction):
+        degree = angle
+        for j in range(3):
+            #self.send_command(servo_num, degree, direction)
+            for i in range(6):
+                degree = degree - 2
+                self.send_command_hizli(servo_num, degree, direction)
+
 
     def yan_yan(self):
         #self.reset_funct()
@@ -370,14 +405,14 @@ class ServoController:
         self.send_command_hizli(self.sag_orta, kapali, 1)
         self.send_command_hizli(self.sag_yuzuk, kapali, 1)
         self.send_command_hizli(self.sag_serce, kapali, 1)
-        self.send_command_hizli(self.sag_bas_par_eklem, kapali, 1)
+        self.send_command_hizli(self.sag_bas_par_eklem, acik, 1)
         self.send_command_hizli(self.sag_bas_par, kapali, 1)
         time.sleep(3)
         self.send_command_hizli(self.sag_isaret, acik, 1)
         self.send_command_hizli(self.sag_orta, acik, 1)
         self.send_command_hizli(self.sag_yuzuk, acik, 1)
         self.send_command_hizli(self.sag_serce, acik, 1)
-        self.send_command_hizli(self.sag_bas_par_eklem, acik, 1)
+        self.send_command_hizli(self.sag_bas_par_eklem, kapali, 1)
         self.send_command_hizli(self.sag_bas_par, acik, 1)
 
     def sol_el_hizli_open_close(self):
@@ -400,35 +435,74 @@ class ServoController:
     def run_bayrak_hareket(self):
         acik = 120
         kapali = 30
-        self.sag_sol(1)
-
-        self.send_command_hizli(self.sag_bas_par_eklem, acik, 1)
-        self.send_command_hizli(self.sag_bas_par, acik, 1)
-        self.send_command_hizli(self.sag_isaret, acik, 1)
-        self.send_command_hizli(self.sag_orta, acik, 1)
-        self.send_command_hizli(self.sag_yuzuk, acik, 1)
-        self.send_command_hizli(self.sag_serce, acik, 1)
-
-        time.sleep(3)
-        self.send_command_hizli(self.sag_isaret, kapali, 1)
-        self.send_command_hizli(self.sag_orta, kapali, 1)
-        self.send_command_hizli(self.sag_yuzuk, kapali, 1)
-        self.send_command_hizli(self.sag_serce, kapali, 1)
-        self.send_command_hizli(self.sag_bas_par_eklem, kapali, 1)
-        self.send_command_hizli(self.sag_bas_par, kapali, 1)
-
-        self.send_command_hizli(self.sag_dirsek,90,1)
-        degree = 60
+        # self.send_command(15, 40, 1)
+        #
+        # self.send_command(self.sag_bas_par_eklem, acik, 1)
+        # self.send_command(self.sag_bas_par, acik, 1)
+        # self.send_command(self.sag_isaret, acik, 1)
+        # self.send_command(self.sag_orta, acik, 1)
+        # self.send_command(self.sag_yuzuk, acik, 1)
+        # self.send_command(self.sag_serce, acik, 1)
+        #
+        # time.sleep(3)
+        # self.send_command(self.sag_isaret, kapali, 1)
+        # self.send_command(self.sag_orta, kapali, 1)
+        # self.send_command(self.sag_yuzuk, kapali, 1)
+        # self.send_command(self.sag_serce, kapali, 1)
+        # self.send_command(self.sag_bas_par_eklem, acik, 1)
+        # self.send_command(self.sag_bas_par, kapali, 1)
+        self.send_command(14, 80, 1)
+        self.send_command(14, 100, 1)
+        self.send_command(13, 80, 1)
+        self.send_command(13, 90, 1)
+        self.send_command(15, 110, 1)
+        self.send_command(15, 90, 1)
+        self.send_command(14, 90, 1)
+        self.send_command(12, 66, 1)
+        degree = 90
         for j in range(5):
+            self.send_command(14, degree, 1)
+            for i in range(6):
+                degree = degree - 4
+                self.send_command_hizli(14, degree, 1)
+            for i in range(6):
+                degree = degree + 4
+                self.send_command_hizli(14, degree, 1)
+
+
+        # self.send_command(8, 40, 1)
+        # self.send_command(10, 100, 1)
+        # self.send_command(8, 90, 1)
+        # self.send_command(10, 60, 1)
+        # self.send_command(9, 90, 1)
+        # self.send_command(8,40,1)
+        degree = 60
+        for j in range(10):
             self.send_command(self.sag_bilek,degree,1)
             for i in range(12):
-                degree = degree + 5
+                degree = degree + 8
                 self.send_command_hizli(self.sag_bilek,degree,1)
             for i in range(12):
-                degree = degree - 5
+                degree = degree - 8
                 self.send_command_hizli(self.sag_bilek,degree,1)
+        # degree = 90
+        # for i in range(6):
+        #     degree = degree - 5
+        #     self.send_command_hizli(10, degree, 1)
+        time.sleep(2)
 
-        self.sol_goz_kirpma()
+
+    def dirsek(self):
+        degree2 = 100
+        for k in range(5):
+            self.send_command(11, degree2, 1)
+            for m in range(10):
+                degree2 = degree2 + 5
+                self.send_command_hizli(11, degree2, 1)
+            for m in range(10):
+                degree2 = degree2 - 5
+                self.send_command_hizli(11, degree2, 1)
+
 
 
 
@@ -486,30 +560,90 @@ class ServoController:
     def close(self):
         self.ser.close()
 
+    # 6 no büyük boyun
+    # 2 çene
+    # 15 sag göz
+    # 12 sol göz
 
     def deneme(self):
-        print("gitti")
-        self.send_command(9,30,1)
-        self.send_command(4
-                          ,90,1)
-        # self.send_command(1, 120, 1)
-        # self.send_command(2, 120, 1)
-        # self.send_command(3, 120, 1)
-        # self.send_command(4, 120, 1)
-        # self.send_command(5, 120, 1)
+
+        for i in range(50):
+            print("gitti")
+            self.send_command(0,30,1)
+            self.send_command(14,90,1)
+            self.send_command(13,90,1)
+
+
+            self.yavas_ac(14,90,1)
+            self.send_command(14, 90, 1)
+            self.yavas_kapa(14,90,1)
+            self.send_command(14, 90, 1)
+            self.send_command(2, 80, 1)
+            self.send_command(2, 60, 1)
+            self.yavas_ac(14, 90, 1)
+            self.send_command(14, 90, 1)
+            self.yavas_kapa(14, 90, 1)
+            self.send_command(14, 90, 1)
+            self.send_command(2, 80, 1)
+            self.send_command(2, 60, 1)
+            self.send_command(15, 120, 1)
+            self.send_command(12, 66, 1)
+            self.send_command(15, 90, 1)
+            self.send_command(12, 90, 1)
+            self.yavas_kapa(8, 90, 1)
+            self.yavas_kapa(10, 90, 1)
+            self.send_command(8, 90, 1)
+            self.send_command(10, 90, 1)
+            self.yavas_kapa(8, 90, 1)
+
+
+
+
+
+
+
+        # self.send_command(7,90,1)
+        # self.send_command(8,90,1)
+        # self.send_command(9, 90, 1)
+        # self.send_command(10, 60, 1)
+        # self.send_command(11, 90, 1)
+        # self.send_command(12, 90, 1)
+        # self.send_command(13,90,1)
+        # self.send_command(14, 90, 1)
+        # self.send_command(15, 90, 1)
+        # self.send_command(2, 70, 1)
+        # self.send_command(6, 90, 1)
+        # self.send_command(8, 90, 1)
+        # self.send_command(10, 60, 1)
+        # self.send_command(9, 90, 1)
+
+
+
+
+        # degree = 40
+        # for j in range(2):
+        #     self.send_command(8, degree, 1)
+        #     for i in range(12):
+        #         degree = degree + 5
+        #         self.send_command_hizli(8, degree, 1)
+        #     for i in range(12):
+        #         degree = degree - 5
+        #         self.send_command_hizli(8, degree, 1)
+
 
 
 
 if __name__ == "__main__":
-    serial_port = 'COM5'
+    serial_port = 'COM8'
     baud_rate = 9600
     controller = ServoController(serial_port, baud_rate)
 
     #controller.run_kol_deneme()
     # controller.run_servos()
     #controller.reset_funct()
-
+    # controller.dirsek()
     #controller.run_bayrak_hareket()
+
     # controller.yan_yan()
     # time.sleep(1)
     # controller.sag_sol()
