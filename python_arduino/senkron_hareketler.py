@@ -118,10 +118,10 @@ class ServoController:
         degree = angle
         for j in range(5):
             #self.send_command(servo_num, degree, direction)
-            for i in range(6):
+            for i in range(10):
                 degree = degree - 5
                 self.send_command_hizli(servo_num, degree, direction)
-            for i in range(6):
+            for i in range(5):
                 degree = degree + 5
                 self.send_command_hizli(servo_num, degree, direction)
 
@@ -567,6 +567,7 @@ class ServoController:
 
     def deneme(self):
 
+
         for i in range(50):
             print("gitti")
             self.send_command(0,30,1)
@@ -590,51 +591,15 @@ class ServoController:
             self.send_command(12, 66, 1)
             self.send_command(15, 90, 1)
             self.send_command(12, 90, 1)
-            self.yavas_kapa(8, 90, 1)
-            self.yavas_kapa(10, 90, 1)
-            self.send_command(8, 90, 1)
-            self.send_command(10, 90, 1)
-            self.yavas_kapa(8, 90, 1)
-
-
-
-
-
-
-
-        # self.send_command(7,90,1)
-        # self.send_command(8,90,1)
-        # self.send_command(9, 90, 1)
-        # self.send_command(10, 60, 1)
-        # self.send_command(11, 90, 1)
-        # self.send_command(12, 90, 1)
-        # self.send_command(13,90,1)
-        # self.send_command(14, 90, 1)
-        # self.send_command(15, 90, 1)
-        # self.send_command(2, 70, 1)
-        # self.send_command(6, 90, 1)
-        # self.send_command(8, 90, 1)
-        # self.send_command(10, 60, 1)
-        # self.send_command(9, 90, 1)
-
-
-
-
-        # degree = 40
-        # for j in range(2):
-        #     self.send_command(8, degree, 1)
-        #     for i in range(12):
-        #         degree = degree + 5
-        #         self.send_command_hizli(8, degree, 1)
-        #     for i in range(12):
-        #         degree = degree - 5
-        #         self.send_command_hizli(8, degree, 1)
-
-
+            # self.yavas_kapa(8, 90, 1)
+            #
+            # self.yavas_ac(8, 72, 1)
+            #
+            # self.yavas_kapa(8, 90, 1)
 
 
 if __name__ == "__main__":
-    serial_port = 'COM8'
+    serial_port = 'COM5'
     baud_rate = 9600
     controller = ServoController(serial_port, baud_rate)
 

@@ -48,8 +48,8 @@ class MyBionics:
 
     def start(self):
         self.camera(func=(
-            #self.hand_gesture_controller.process_gestures,
-            #self.head_gesture_controller.process_gestures,
+            self.hand_gesture_controller.process_gestures,
+            self.head_gesture_controller.process_gestures,
             self.eye_gesture_controller.process_gestures,
             self.mouth_gesture_controller.process_gestures,
         ))
